@@ -93,16 +93,19 @@ def server():
     s.listen(5)
 
     while True:
-        c, addr = s.accept()
-        print('Got connection from', addr)
+        try:
+            c, addr = s.accept()
+            print('Got connection from', addr)
 
-        # On crée un thread receiving data
-        connection_handler = threading.Thread(
-            target=incomingReverseShell,
-            args=(c, message, SEP,)
-        )
-        connection_handler.start()
-        print("\n Nombre de Thread", threading.active_count())
+            # On crée un thread receiving data
+            connection_handler = threading.Thread(
+                target=incomingReverseShell,
+                args=(c, message, SEP,)
+            )
+            connection_handler.start()
+            print("\n Nombre de Thread", threading.active_count())
+        except socket.timeout:
+            continue
 
 
 if __name__ == "__main__":
