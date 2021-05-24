@@ -13,10 +13,10 @@ MUST use one or more SMB_COM_*TRANSACT*_SECONDARY command (with same TID, UID, P
 transaction message that did not fit in the initial message.
 
 Each SMB transaction command has subcommand codes. There are 3 group of transaction subcommand as documented in
-https://msdn.microsoft.com/en-us/library/ee441514.aspx (because SMB_COM_*TRANSACT*_SECONDARY comamnds are needed to 
+https://msdn.microsoft.com/en-us/library/ee441514.aspx (because SMB_COM_*TRANSACT*_SECONDARY commands are needed to 
 send a large transaction message).
 
-Now, we go through some implementaion detail on Windows SMB transaction.
+Now, we go through some implementation detail on Windows SMB transaction.
 - A TRANSACTION struct and transaction data buffer are always allocated in 1 buffer. In memory, a TRANSACTION struct
   is always followed by data buffer as shown below.
     +-----------------+--------------------------------------------+
