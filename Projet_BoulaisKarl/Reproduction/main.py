@@ -1,24 +1,21 @@
-#!/usr/bin/env python
+#!/usr/#!/usr/bin/env python
+#coding=utf-8
 
-# TODO: Persistance
-# ========= on victim server
-# install python3
-# run python3 -c "import pty; pty.spawn('/bin/bash')"
+__author__ = 'Karl Boulais'
 
-# ========= on CnC
-#stty raw -echo
-#sudo nc -lnvp 443
-# ========= Connection established
-# export TERM=xterm
+import argparse
 
+class Main():
+    def __init__(self):
+        pass
 
-
-# 
-
-def sendInfo():
-    pass
+    def sendInfo(self):
+        pass
+    
+    def main(self):
+        pass
 
 
 
 if __name__ == "__main__":
-    pass
+    Main().main()
