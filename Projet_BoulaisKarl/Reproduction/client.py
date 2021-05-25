@@ -97,11 +97,10 @@ class Client():
             
 
     def main(self):
-        # [1]_ [2]_
+        
         for connection in self._connectionThreadList:
             threading.Thread(target=connection).start()
-        # self._sendingData()
-        # self._ReverseShell()
+
 
 if __name__ == "__main__":
    Client().main()
