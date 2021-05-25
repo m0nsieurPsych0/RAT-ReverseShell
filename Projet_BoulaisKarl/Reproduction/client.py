@@ -33,12 +33,12 @@ class Client():
         s.connect((host, port))
         data = {}
 
-        while not quitting:
+        while True:
             data["message"] = input('> ')
             if data["message"].lower() == "exit":
-                quitting = True
                 s.send(self.encode(data))
                 s.close
+                break
 
             s.send(self.encode(data))
 

