@@ -14,12 +14,12 @@ class Powershell():
     
     class GetInfo(Enum):
         # Get user data
-        GETLOCALIP          = f"{psPrefix}(Get-NetIPAddress -AddressFamily IPV4 -InterfaceAlias 'Ethernet *').IPAddress"
-        GETMAC              = f"{psPrefix}((Out-String -InputObject (Get-NetAdapter -Physical | Format-List -Property MacAddress)).split(':')[1]).Trim()"
-        GETUSERS            = f"{psPrefix}(Out-String -InputObject (Get-LocalUser | Where-object {{ $_.Enabled -like 'True' }} | Format-List -Property Name)).Replace('Name : ', '').Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries)"
-        GETHOSTNAME         = f"{psPrefix}[System.Net.Dns]::GetHostName()"
-        GETRUNNINGSERVICES  = f"{psPrefix}Get-Service | Where-Object {{$_.Status -eq 'Running'}}"
-        GETARCH             = f"{psPrefix}(wmic os get osarchitecture)[2]"
+        LOCALIP          = f"{psPrefix}(Get-NetIPAddress -AddressFamily IPV4 -InterfaceAlias 'Ethernet *').IPAddress"
+        MAC              = f"{psPrefix}((Out-String -InputObject (Get-NetAdapter -Physical | Format-List -Property MacAddress)).split(':')[1]).Trim()"
+        USERS            = f"{psPrefix}(Out-String -InputObject (Get-LocalUser | Where-object {{ $_.Enabled -like 'True' }} | Format-List -Property Name)).Replace('Name : ', '').Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries)"
+        HOSTNAME         = f"{psPrefix}[System.Net.Dns]::GetHostName()"
+        RUNNINGSERVICES  = f"{psPrefix}Get-Service | Where-Object {{$_.Status -eq 'Running'}}"
+        ARCH             = f"{psPrefix}(wmic os get osarchitecture)[2]"
 
     class OpenPorts(Enum):
         # Open Port and services
@@ -45,6 +45,8 @@ if __name__ == "__main__":
     # test = Powershell.GETLOCALIP.value
     # print(str(test))
     # print(Powershell.GetInfo.GETARCH.value)
-    # subprocess.call(Powershell.GetInfo.GETUSERS.value)
+    # print(subprocess.getoutput(Powershell.Persist.CHECKEVILSTATUS.value))
+    # print(subprocess.check_output(Powershell.Persist.CHECKEVILSTATUS.value))
     # for command in (Powershell.GetInfo):
-    #     subprocess.call(command.value)
+    #     print(command.name)
+    #     print(subprocess.check_call(command.value))

