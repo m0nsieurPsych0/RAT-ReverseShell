@@ -70,7 +70,6 @@ class Server():
                 self._clrscr()
                 continue
             else:
-                # c.send(self.encode(data))
                 self._sending(c, data)
                 data = self._receiving(c)
             

