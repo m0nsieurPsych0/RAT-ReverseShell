@@ -20,6 +20,14 @@ class Powershell():
         HOSTNAME         = f"{psPrefix}[System.Net.Dns]::GetHostName()"
         RUNNINGSERVICES  = f"{psPrefix}Get-Service | Where-Object {{$_.Status -eq 'Running'}}"
         ARCH             = f"{psPrefix}(wmic os get osarchitecture)[2]"
+        PCINFO           = f"{psPrefix}Get-ComputerInfo"
+        CLIPBOARD        = f"{psPrefix}Get-clipboard"
+        DISKS            = f"{psPrefix}Get-PhysicalDisk"
+        GPU              = f"{psPrefix}Get-WmiObject win32_VideoController | Format-List *"
+        
+           
+
+
 
     class OpenPorts(Enum):
         # Open Port and services
