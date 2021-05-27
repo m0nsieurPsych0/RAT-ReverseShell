@@ -18,17 +18,13 @@ class Powershell():
         MAC              = f"{psPrefix}((Out-String -InputObject (Get-NetAdapter -Physical | Format-List -Property MacAddress)).split(':')[1]).Trim()"
         USERS            = f"{psPrefix}(Out-String -InputObject (Get-LocalUser | Where-object {{ $_.Enabled -like 'True' }} | Format-List -Property Name)).Replace('Name : ', '').Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries)"
         HOSTNAME         = f"{psPrefix}[System.Net.Dns]::GetHostName()"
-        RUNNINGSERVICES  = f"{psPrefix}Get-Service | Where-Object {{$_.Status -eq 'Running'}}"
+        RUNNINGSERVICES  = f"{psPrefix}Get-Service | Where-Object {{$_.Status -eq 'Running'}} | Format-Table Name, DisplayName"
         ARCH             = f"{psPrefix}(wmic os get osarchitecture)[2]"
         PCINFO           = f"{psPrefix}Get-ComputerInfo"
         CLIPBOARD        = f"{psPrefix}Get-clipboard"
-        DISKS            = f"{psPrefix}Get-PhysicalDisk"
-        GPU              = f"{psPrefix}Get-WmiObject win32_VideoController | Format-List *"
-        
-           
-
-
-
+        DISKS            = f"{psPrefix}Get-Disk | Format-List FriendlyName, SerialNumber, PartitionStyle, @{{Name='Size, Gb'; Expression={{[int]($_.Size/1GB)}}}}"
+        GPU              = f"{psPrefix}Get-WmiObject win32_VideoController | Format-List VideoProcessor, VideoModeDescription, Status, DriverVersion, DriverDate, PNPDeviceID"
+          
     class OpenPorts(Enum):
         # Open Port and services
         OPENSSHPORT         = f"{psPrefix}New-NetFirewallRule -DisplayName 'ALLOW TCP PORT 21' -Direction inbound -Profile Any -Action Allow -LocalPort 22 -Protocol TCP"
