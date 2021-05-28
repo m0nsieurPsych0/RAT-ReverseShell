@@ -67,13 +67,13 @@ class Dao():
         self.connection.commit()
 
     # TODO: Cette fonction ne va pas ici
+    # Créer un lock sur le thread pour écrire dans la BD
     def bufferInsert(self, data: tuple):
         buffer = list
         buffer.append(data)
         if (len(buffer) > 5): #TODO: Ajouter une contrainte de temps pour flusher le buffer
             self.insertClient(buffer)
 
-        
     
 if __name__ == "__main__":
     pass
