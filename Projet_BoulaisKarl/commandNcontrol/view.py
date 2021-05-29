@@ -23,7 +23,8 @@ class View():
                         choix = int(input("\n choix: "))
                     except KeyboardInterrupt:
                         s.inSession = False
-                        sys.exit(0)
+                        return 1
+                        # sys.exit(0)
                     except Exception:
                         continue
                     if choix is not None:

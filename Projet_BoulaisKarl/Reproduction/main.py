@@ -17,8 +17,7 @@ class main():
                 #start client
                 # start propagation MS17-010
             #else:
-                #enable service
-                #start service
+                #enable service / start service
                 #then quit
         #else:
             #install service
