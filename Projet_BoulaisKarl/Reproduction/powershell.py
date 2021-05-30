@@ -5,6 +5,10 @@ __author__ = 'Karl Boulais'
 
 from enum import Enum
 
+#FIXME On importe seulement en démo
+
+from demo.demo import Demo
+
 # Global
 psPrefix = "powershell -command "
 
@@ -13,9 +17,19 @@ class Powershell():
     
     class GetInfo(Enum):
         # Get user data
-        HOSTNAME         = f"{psPrefix}[System.Net.Dns]::GetHostName()"
-        LOCALIP          = f"{psPrefix}(Get-NetIPAddress -AddressFamily IPV4 -InterfaceAlias 'Ethernet *').IPAddress"
-        MAC              = f"{psPrefix}((Out-String -InputObject (Get-NetAdapter -Physical | Format-List -Property MacAddress)).split(':')[1]).Trim()"
+
+        # FIXME Produit des données fictives pour la démonstration
+        HOSTNAME         = Demo().randHostname()
+        LOCALIP          = Demo().randIP()
+        PUBLICIP         = Demo().randIP()
+        MAC              = Demo().randMac()
+        
+        # FIXME Les vrais commande lorque déployer
+        # HOSTNAME         = f"{psPrefix}[System.Net.Dns]::GetHostName()"
+        # LOCALIP          = f"{psPrefix}(Get-NetIPAddress -AddressFamily IPV4 -InterfaceAlias 'Ethernet *').IPAddress"
+        # PUBLICIP         = f"{psPrefix}(Invoke-WebRequest -uri 'http://ifconfig.me/ip').Content"
+        # MAC              = f"{psPrefix}((Out-String -InputObject (Get-NetAdapter -Physical | Format-List -Property MacAddress)).split(':')[1]).Trim()"
+        
         USERS            = f"{psPrefix}(Out-String -InputObject (Get-LocalUser | Where-object {{ $_.Enabled -like 'True' }} | Format-List -Property Name)).Replace('Name : ', '').Split([Environment]::NewLine, [StringSplitOptions]::RemoveEmptyEntries)"
         RUNNINGSERVICES  = f"{psPrefix}Get-Service | Where-Object {{$_.Status -eq 'Running'}} | Format-Table Name, DisplayName"
         ARCH             = f"{psPrefix}(wmic os get osarchitecture)[2]"

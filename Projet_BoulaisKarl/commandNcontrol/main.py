@@ -21,7 +21,7 @@ def main():
     v = View()
     s = Server()
     s.main()
-
+ 
     v.interractiveMode(s)
     
 
