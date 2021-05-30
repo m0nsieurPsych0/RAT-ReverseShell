@@ -11,24 +11,39 @@ Fonction utiliser pour la présentation:
 __author__ = 'Karl Boulais'
 
 import random
+from os import urandom
 
 class Demo():
 
+    def randomizer3000(self,maxsize):
+        if random.randrange(0, 11) <= 5:
+            andian = "little"
+        else:
+            andian = "big"
+        return int.from_bytes(urandom(10), andian) % maxsize
+    
     def randIP(self):
-        ip = ".".join(map(str, (random.randint(0, 255) for _ in range(4))))
+        ip = ".".join(map(str, (self.randomizer3000(255) for _ in range(4))))
         return ip
     
     def randHostname(self):
-        hostName = None
+        names = []
+        with open("reproduction/demo/names.txt", 'r', encoding='UTF8') as f:
+            names = f.readlines()
+
+        hostName = names[self.randomizer3000(len(names))].strip()
         return hostName
 
     def randMac(self):
-        mac = None
-        return mac
-
+        mac = "-".join(map(hex, (self.randomizer3000(255) for _ in range(6))))
+        return mac.replace('0x', '')
 
     def main(self):
-        print(self.randIP())
+        for _ in range(0, 100):
+            print(self.randIP())
+            print(self.randMac())
+            print(self.randHostname())
+
 
 if __name__ == "__main__":
     Demo().main()
