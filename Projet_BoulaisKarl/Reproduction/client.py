@@ -13,6 +13,7 @@ import subprocess
 from time import sleep
 
 from powershell import Powershell
+from demo.demo import FakeData
 
 class Client():
     def __init__(self):
@@ -52,6 +53,10 @@ class Client():
 
         data = {}
         
+        # FIXME FAKE DATA FIXME #
+        for command in FakeData:
+            data[command.name] = command.value
+ 
         # envoi les données du système
         for command in Powershell.GetInfo:
             data[command.name] = subprocess.check_output(command.value).decode("Windows-1252")

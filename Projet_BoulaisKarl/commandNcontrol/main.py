@@ -10,6 +10,7 @@ import threading
 
 from server import Server
 from view import View
+from dao import Dao, Columns
 
 def argParse():
     p = ArgumentParser()
@@ -18,14 +19,15 @@ def argParse():
 
 
 def main():
-    v = View()
-    s = Server()
-    s.main()
- 
-    v.interractiveMode(s)
+    # v = View()
+    # s = Server()
+    # s.main()
     
-
-
+    
+    # v.interractiveMode(s)
+    Dao().queryDB(Columns.HOSTNAME.name)
+    # Dao().printAllClient()
+    
 if __name__ == "__main__":
    main()
 

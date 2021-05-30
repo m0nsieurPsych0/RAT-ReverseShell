@@ -14,17 +14,12 @@ psPrefix = "powershell -command "
 
 class Powershell():
     """Donnes accès à un enum de commandes powershell"""
-    
+
     class GetInfo(Enum):
         # Get user data
-
-        # FIXME Produit des données fictives pour la démonstration
-        HOSTNAME         = Demo().randHostname()
-        LOCALIP          = Demo().randIP()
-        PUBLICIP         = Demo().randIP()
-        MAC              = Demo().randMac()
         
-        # FIXME Les vrais commande lorque déployer
+        # FIXME Les vrais commande lorqu'on veut déployer FIXME #
+
         # HOSTNAME         = f"{psPrefix}[System.Net.Dns]::GetHostName()"
         # LOCALIP          = f"{psPrefix}(Get-NetIPAddress -AddressFamily IPV4 -InterfaceAlias 'Ethernet *').IPAddress"
         # PUBLICIP         = f"{psPrefix}(Invoke-WebRequest -uri 'http://ifconfig.me/ip').Content"

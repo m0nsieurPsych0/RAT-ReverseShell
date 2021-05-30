@@ -11,7 +11,8 @@ Fonction utiliser pour la présentation:
 __author__ = 'Karl Boulais'
 
 import random
-from os import urandom
+from os import urandom, path
+from enum import Enum
 
 class Demo():
 
@@ -28,7 +29,7 @@ class Demo():
     
     def randHostname(self):
         names = []
-        with open("reproduction/demo/names.txt", 'r', encoding='UTF8') as f:
+        with open(f"{path.dirname(__file__)}/names.txt", 'r', encoding='UTF8') as f:
             names = f.readlines()
 
         hostName = names[self.randomizer3000(len(names))].strip()
@@ -44,6 +45,12 @@ class Demo():
             print(self.randMac())
             print(self.randHostname())
 
+class FakeData(Enum):
+    # FIXME Produit des données fictives pour la démonstration
+    HOSTNAME         = Demo().randHostname()
+    LOCALIP          = Demo().randIP()
+    PUBLICIP         = Demo().randIP()
+    MAC              = Demo().randMac()
 
 if __name__ == "__main__":
     Demo().main()
