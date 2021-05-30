@@ -21,14 +21,13 @@ def main():
     v = View()
     s = Server()
     s.main()
-    
+
     v.interractiveMode(s)
     
 
 
 if __name__ == "__main__":
    main()
-
 
 
 
