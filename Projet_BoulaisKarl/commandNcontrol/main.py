@@ -23,15 +23,15 @@ def argParse():
 
     ''')
 
+    # On construit la liste de choix
     choiceList = ["ALL"]
-
     for choice in Columns:
         choiceList.append(str(choice))
     
-    group.add_argument('-d', '--db', action='store', type=str, choices=choiceList, dest='db', help='''
+    group.add_argument('-d', '--database', action='store', type=str, choices=choiceList, dest='db', help='''
     
-    Entrez un ou plusieurs champ que vous voulez lister provenant de la base de donnée. 
-    Un choix vide affiche tout le contenu de la base de donnée.    
+    Entrez un champ que vous voulez lister provenant de la base de donnée. 
+    Un choix vide affiche tout le contenu de la base de donnée.
     ''')
     
     return p
@@ -52,15 +52,7 @@ def main():
         if args.db == "ALL":
             Dao().printAllClient()
         else:
-            Dao().queryDB(args.db)
-        
-
-
-    # TODO :
-    # - ARGPARSE:
-    #           1- server et control
-    #           2- query database
-    
+            Dao().queryDB(args.db)    
     
     
 if __name__ == "__main__":
@@ -78,5 +70,8 @@ if __name__ == "__main__":
 .. [2]  https://stackoverflow.com/questions/18018033/how-to-stop-a-looping-thread-in-python 
         Méthode pour terminer les autres thread (grâcieusement) qui sont dans une boucle infinie
         On utilise un attribut qu'on modifie lorqu'on veut arrêter un thread
+
+.. [3]  https://stackoverflow.com/questions/43968006/support-for-enum-arguments-in-argparse
+        Méthode pour ajouter une liste d'Enum pour limiter les arguments dans argparse 
 
 '''

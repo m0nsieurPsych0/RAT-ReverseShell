@@ -72,10 +72,6 @@ class Server():
         data = {}
         quitting = False
 
-        # .aquires
-        # .release
-
-
         while not quitting:
 
             data = self._receiving(c)
@@ -87,14 +83,10 @@ class Server():
                 db.insertNewClient(data)
                 data = {"message":"done"}
                 self._sending(c, data)
-            
-            
-            # for k,v in data.items():
-            #     print(k)
-            #     print(v)
 
     def _serverReverseShell(self, s):
         # Démarre le service pour recevoir les connexions ReverseShell
+        
         c = None
         addr = None
 

@@ -11,6 +11,7 @@ class main():
 
     def checkifRunningAsService(self):
         pass
+        # if Persistence().serviceInstalled():
         # TODO
         #if service is present
             #if service is running:

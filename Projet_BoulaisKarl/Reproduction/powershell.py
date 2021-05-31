@@ -54,17 +54,4 @@ class Powershell():
 
 
 if __name__ == "__main__":
-    import subprocess
-    import json
-
-    # for command in (Powershell.GetInfo):
-    #     print(command.name)
-    #     print(command.value)
-    data = {}
-    for command in Powershell.GetInfo:
-            data[command.name] = subprocess.check_output(command.value).decode("Windows-1252")
-    
-    with open("output.txt", "w") as f:
-        f.write(json.dumps(data))
-
-    # print(data)
+   pass
