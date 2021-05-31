@@ -44,3 +44,11 @@ on peut demander de l'aide sur les commandes en entrant:
 On démarre le client en entrant:
 
     python.exe .\client.py
+
+
+# Pour les utilisateurs avancés
+Dans le dossier reproduction il y a le dossier propagation qui y contient le code pour exploiter la vulnérabilité MS17-010.
+Dans ce dossier il y a aussi un fichier nommée persistence.py qui permet d'installer le programme comme un service windows.
+L'avantage de cette installation c'est que les droits du programme deviennent «System NT» ce qui est plus haut qu'administrateur.
+Dans le dossier outils vous trouverez des bribes de code pour accomplir des tâches de manipulation de donnée et de création de «payload» qui
+peuvent être intégrer au code directement et déployé lors de l'exécution.
