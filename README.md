@@ -29,12 +29,18 @@ Il y a deux modules principaux à ce projet:
 
 ### 1- Serveur: Dans le dossier CommandNcontrol
 On démarre le server en entrant:
+    
     python.exe .\main.py -s
+
 on peut sortir des information de la base de donnée en entrant:
+
     python.exe .\main.py -d
+
 on peut demander de l'aide sur les commandes en entrant:
+
     python.exe .\main.py --help
 
 ### 2- Client: Dans le dossier reproduction
 On démarre le client en entrant:
+
     python.exe .\client.py
