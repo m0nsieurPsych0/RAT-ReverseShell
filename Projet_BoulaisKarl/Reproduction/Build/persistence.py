@@ -63,7 +63,5 @@ class Persistence():
         self._installService()
 
 if __name__ == "__main__":
-    # print("OSPATH", os.path.dirname(argv[0]))
-    # print("ARGPATH", argv[0])
     Persistence().main()
     

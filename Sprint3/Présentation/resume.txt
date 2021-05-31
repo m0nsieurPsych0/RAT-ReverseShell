@@ -1,0 +1,2 @@
+Ce projet montre un échange entre le serveur et plusieurs clients. On met en pratique le multithreading et la communication TCP ainsi que l'enregistrement de plusieurs donnée provenant de plusieurs clients.
+On montre aussi la récupération de donnée à l'aide d'une liste de commande SQL. 
